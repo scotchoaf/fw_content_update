@@ -111,7 +111,7 @@ def main():
     # python skillets currently use CLI arguments to get input from the operator / user. Each argparse argument long
     # name must match a variable in the .meta-cnc file directly
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--firewall", help="IP address of the firewall to pull the stats dump from", type=str)
+    parser.add_argument("-f", "--firewall", help="IP address of the firewall", type=str)
     parser.add_argument("-u", "--username", help="Firewall Username", type=str)
     parser.add_argument("-p", "--password", help="Firewall Password", type=str)
     args = parser.parse_args()

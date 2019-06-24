@@ -22,7 +22,7 @@ labels:
 # may be customized for each deployment. Each variable will be rendered as a form field in the panhandler application
 variables:
   - name: panorama
-    description: NGFW IP or Hostname
+    description: Panorama IP or Hostname
     default: 192.168.55.10
     type_hint: fqdn_or_ip
   - name: username
