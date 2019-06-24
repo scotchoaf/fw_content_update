@@ -1,4 +1,4 @@
-name: content_update
+name: ngfw_content_update
 # label used for menu selection
 label: NGFW Content Updates
 
@@ -16,7 +16,7 @@ extends:
 labels:
   collection:
     - Configure
-    - Updates
+    - NGFW Updates
 
 # variables define the things an operator may customize in this skillet. Things like DNS servers, NTP addresses, etc
 # may be customized for each deployment. Each variable will be rendered as a form field in the panhandler application
