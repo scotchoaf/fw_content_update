@@ -3,7 +3,7 @@ name: ngfw_content_update_w_panorama
 label: NGFW Content Updates using Panorama Target
 
 description: |
-  This skillet will use the firewall API to check, download, and install latest updates. This version uses a Panorama target
+  This skillet will use the Panorama API to check, download, and install latest updates to a target firewall
 
 type: python3
 
