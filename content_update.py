@@ -136,6 +136,8 @@ def main():
     for item in ['content', 'anti-virus']:
         update_content(fw, item)
 
+    print('\ncontent update complete')
+
 
 if __name__ == '__main__':
     main()
