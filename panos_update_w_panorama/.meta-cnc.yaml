@@ -33,7 +33,7 @@ variables:
     description: NGFW Password
     default:
     type_hint: password
-  - name: fw_serial_number
+  - name: serial_number
     description: NGFW serial number
     default: 1234
     type_hint: text
