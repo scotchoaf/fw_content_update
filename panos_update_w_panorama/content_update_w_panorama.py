@@ -135,6 +135,8 @@ def main():
     # get firewall api key
     api_key = fw.keygen()
 
+    print('updating content for NGFW serial number {0}'.format(serial_number))
+
     # !!! updates require mgmt interface with internet access
     # update to latest content and av versions
     for item in ['content', 'anti-virus']:
