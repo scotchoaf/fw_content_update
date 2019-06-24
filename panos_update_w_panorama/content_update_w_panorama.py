@@ -57,15 +57,16 @@ def check_job_status(fw, results, target):
     periodically check job status in the firewall
     :param fw is fw object being queried
     :param results is the xml-string results returned for job status
+    :param target is an api string using the fw serial number
     '''
 
     # initialize to null status
     status = ''
 
     job_id = get_job_id(results)
-    #print('checking status of job id {0}...'.format(job_id))
 
     # check job id status and progress
+    # extra_qs target names the fw serial number
     while status != 'FIN':
 
         fw.op(cmd='<show><jobs><id>{0}</id></jobs></show>'.format(job_id), extra_qs=target)
@@ -83,6 +84,8 @@ def update_content(fw, type, sn):
     :param type is update type - content or anti-virus
     '''
 
+    # text used in extra_qs to use panorama api as proxy to fw based on serial number
+    # target used in all api calls referencing the same serial number aka fw
     target = 'target={0}'.format(sn)
 
     print('checking for latest {0} updates...'.format(type))
@@ -108,11 +111,13 @@ def update_content(fw, type, sn):
 def main():
     '''
     simple set of api calls to update fw to latest content versions
+    uses panorama as a proxy by adding target=serial_number to the api requests
     '''
 
     # python skillets currently use CLI arguments to get input from the operator / user. Each argparse argument long
     # name must match a variable in the .meta-cnc file directly
     parser = argparse.ArgumentParser()
+    # TODO: need to update the -f to another value to make sense
     parser.add_argument("-f", "--panorama", help="IP address of Panorama", type=str)
     parser.add_argument("-u", "--username", help="Panorama Username", type=str)
     parser.add_argument("-p", "--password", help="Panorama Password", type=str)
@@ -124,21 +129,24 @@ def main():
         parser.exit()
         exit(1)
 
+    # this is actually the panorama ip and will fix
     fw_ip = args.panorama
     username = args.username
     password = args.password
     serial_number = args.serial_number
 
     # create fw object using pan-python class
+    # fw object is actually a panorama object so an api device object
     fw = pan.xapi.PanXapi(api_username=username, api_password=password, hostname=fw_ip)
 
-    # get firewall api key
+    # get panorama api key
     api_key = fw.keygen()
 
     print('updating content for NGFW serial number {0}'.format(serial_number))
 
-    # !!! updates require mgmt interface with internet access
-    # update to latest content and av versions
+    # !!! updates require panorama mgmt interface with internet access
+    # update ngfw to latest content and av versions
+    # passing in the serial number to use in panorama as api target
     for item in ['content', 'anti-virus']:
         update_content(fw, item, serial_number)
 
