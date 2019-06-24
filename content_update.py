@@ -72,7 +72,7 @@ def check_job_status(fw, results):
         status, progress = get_job_status(fw.xml_result())
         if status != 'FIN':
             print('job {0} in progress [ {1}% complete ]'.format(job_id, progress), end='\r', flush=True)
-            time.sleep(3)
+            time.sleep(5)
 
     print('\njob {0} is complete'.format(job_id))
 
