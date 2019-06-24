@@ -1,25 +1,63 @@
-'''
-Palo Alto Networks classFile.py
+# Copyright (c) 2018, Palo Alto Networks
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-testing python classes across files
+# Author: Scott Shoaf <sshoaf@paloaltonetworks.com>
+
+'''
+Palo Alto Networks content_update.py
+
+uses the firewall api to check, download, and install content updates
+does both content/threat and antivirus updates
 
 This software is provided without support, warranty, or guarantee.
 Use at your own risk.
 '''
 
+import argparse
+import sys
 import time
 import pan.xapi
 
 
 def get_job_id(s):
+    '''
+    extract job-id from pan-python string xml response
+    regex parse due to pan-python output join breaking xml rules
+    :param s is the input string
+    :return: simple string with job id
+    '''
+
     return s.split('<job>')[1].split('</job>')[0]
 
 def get_job_status(s):
+    '''
+    extract status and progress % from pan-python string xml response
+    regex parse due to pan-python output join breaking xml rules
+    :param s is the input string
+    :return: status text and progress %
+    '''
+
     status = s.split('<status>')[1].split('</status>')[0]
     progress = s.split('<progress>')[1].split('</progress>')[0]
     return status, progress
 
 def check_job_status(fw, results):
+    '''
+    periodically check job status in the firewall
+    :param fw is fw object being queried
+    :param results is the xml-string results returned for job status
+    '''
 
     # initialize to null status
     status = ''
@@ -39,6 +77,11 @@ def check_job_status(fw, results):
     print('\njob {0} is complete'.format(job_id))
 
 def update_content(fw, type):
+    '''
+    check, download, and install latest content updates
+    :param fw is the fw object being updated
+    :param type is update type - content or anti-virus
+    '''
 
     print('checking for latest {0} updates...'.format(type))
     fw.op(cmd='<request><{0}><upgrade><check/></upgrade></{0}></request>'.format(type))
@@ -61,12 +104,29 @@ def update_content(fw, type):
 
 
 def main():
+    '''
+    simple set of api calls to update fw to latest content versions
+    '''
 
-    ip_addr = '192.168.55.162'
-    user = 'admin'
-    pw = 'paloalto'
+    # python skillets currently use CLI arguments to get input from the operator / user. Each argparse argument long
+    # name must match a variable in the .meta-cnc file directly
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--firewall", help="IP address of the firewall to pull the stats dump from", type=str)
+    parser.add_argument("-u", "--username", help="Firewall Username", type=str)
+    parser.add_argument("-p", "--password", help="Firewall Password", type=str)
+    args = parser.parse_args()
 
-    fw = pan.xapi.PanXapi(api_username=user, api_password=pw, hostname=ip_addr)
+    if len(sys.argv) < 2:
+        parser.print_help()
+        parser.exit()
+        exit(1)
+
+    fw_ip = args.firewall
+    username = args.username
+    password = args.password
+
+    # create fw object using pan-python class
+    fw = pan.xapi.PanXapi(api_username=username, api_password=password, hostname=fw_ip)
 
     # get firewall api key
     api_key = fw.keygen()
